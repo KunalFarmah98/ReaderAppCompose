@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "649171236810",
+    "project_id": "readerapp-4194f",
+    "storage_bucket": "readerapp-4194f.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:649171236810:android:2851b1ec0a3a0f68244133",
+        "android_client_info": {
+          "package_name": "com.kunalfarmah.apps.readerapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "649171236810-n8v65hudhs5k7hsejaah874ggmt09uta.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.kunalfarmah.apps.readerapp",
+            "certificate_hash": "7a622ab118cf3a8aadb95c09f34fb9ca49b03087"
+          }
+        },
+        {
+          "client_id": "649171236810-clpj6gbenicn1vmk88o4rjtt6g5msvth.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDZvSM3uOUEFtaWknvRBjOnzkqlLoiDRAw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "649171236810-clpj6gbenicn1vmk88o4rjtt6g5msvth.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
