@@ -57,7 +57,7 @@ import androidx.compose.ui.unit.sp
 fun UserForm(modifier: Modifier = Modifier,
              loading: Boolean = false,
              isCreateAccount: Boolean = false,
-             onDone: (String, String) -> Unit  = {email, pwd -> {}}
+             onDone: (String, String, Boolean, (String)->Unit) -> Unit  = {email, pwd, isLogin, setError -> {}}
              ) {
     val email = rememberSaveable {
         mutableStateOf("")
@@ -71,6 +71,10 @@ fun UserForm(modifier: Modifier = Modifier,
 
     val login = remember {
         mutableStateOf(!isCreateAccount)
+    }
+
+    val error = remember {
+        mutableStateOf("")
     }
     val btnText = if (login.value) "Login" else "Register"
     val optionText = if (login.value) "New Here? Register" else "Already A User? Login"
@@ -107,7 +111,9 @@ fun UserForm(modifier: Modifier = Modifier,
             modifier = Modifier.focusRequester(passwordFocusRequest),
             onAction = KeyboardActions {
                 if (!valid) return@KeyboardActions
-                onDone(email.value.trim(), password.value.trim())
+                onDone(email.value.trim(), password.value.trim(), login.value){
+                    error.value = it
+                }
             }
         )
         Spacer(modifier = Modifier.height(10.dp))
@@ -116,7 +122,12 @@ fun UserForm(modifier: Modifier = Modifier,
             loading = loading,
             validInputs = valid
         ){
-            onDone(email.value.trim(), password.value.trim())
+            onDone(email.value.trim(), password.value.trim(), login.value){
+                error.value = it
+            }
+        }
+        if(error.value.isNotEmpty()){
+            ErrorText(text = error.value)
         }
         ClickableText(text = buildAnnotatedString {
             withStyle(
@@ -245,4 +256,9 @@ fun SubmitButton(textId:String, loading:Boolean, validInputs: Boolean, onClick: 
         if(loading) CircularProgressIndicator(modifier = Modifier.size(25.dp))
         else Text(textId, modifier = Modifier.padding(5.dp))
     }
+}
+
+@Composable
+fun ErrorText(text: String){
+    Text(text = text, modifier = Modifier.padding(5.dp), style = TextStyle(color = Color.Red))
 }
