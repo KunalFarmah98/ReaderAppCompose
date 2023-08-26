@@ -11,6 +11,7 @@ import com.kunalfarmah.apps.readerapp.screens.splash.SplashScreen
 import androidx.activity.viewModels
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
+import com.kunalfarmah.apps.readerapp.screens.stats.StatsScreen
 
 @Composable
 fun Navigation() {
@@ -25,6 +26,9 @@ fun Navigation() {
         }
         composable(ScreenNames.HomeScreen.name){
             HomeScreen(navController)
+        }
+        composable(ScreenNames.StatsScreen.name){
+            StatsScreen(navController)
         }
     }
 }
