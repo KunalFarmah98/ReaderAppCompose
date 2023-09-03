@@ -1,28 +1,44 @@
 package com.kunalfarmah.apps.readerapp.components
 
-import android.transition.CircularPropagation
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.ExitToApp
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.rounded.FavoriteBorder
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
@@ -31,15 +47,16 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.scale
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -47,9 +64,18 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import coil.compose.rememberImagePainter
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
+import com.kunalfarmah.apps.readerapp.App
+import com.kunalfarmah.apps.readerapp.model.MBook
+import com.kunalfarmah.apps.readerapp.nav.ScreenNames
 
 
 @OptIn(ExperimentalComposeUiApi::class)
@@ -261,4 +287,188 @@ fun SubmitButton(textId:String, loading:Boolean, validInputs: Boolean, onClick: 
 @Composable
 fun ErrorText(text: String){
     Text(text = text, modifier = Modifier.padding(5.dp), style = TextStyle(color = Color.Red))
+}
+
+@Composable
+fun TitleSection(modifier: Modifier = Modifier, label: String) {
+    Surface(modifier = modifier.padding(start = 5.dp, top= 1.dp)){
+        Text(
+            text = label,
+            style = TextStyle(fontSize = 19.sp, fontStyle = FontStyle.Normal, textAlign = TextAlign.Left)
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun AppBar(
+    title: String = "A Reader",
+    showProfile: Boolean = true,
+    navController: NavController = NavController(
+        App.context
+    )
+) {
+    TopAppBar(
+        title = {
+            Text(
+                text = title, color = Color.Red.copy(0.7f),
+                style = TextStyle(fontWeight = FontWeight.Bold, fontSize = 20.sp)
+            )
+        },
+        navigationIcon = {
+            if (showProfile) {
+                Icon(
+                    imageVector = Icons.Default.AccountCircle,
+                    contentDescription = "App Icon",
+                    modifier = Modifier
+                        .padding(start = 10.dp)
+                        .size(25.dp)
+                )
+            }
+        },
+        actions = {
+            IconButton(onClick = {
+                Firebase.auth.signOut()
+                navController.navigate(ScreenNames.LoginScreen.name)
+            }) {
+                Icon(
+                    imageVector = Icons.Default.ExitToApp,
+                    contentDescription = "Logout",
+                    modifier = Modifier.size(25.dp)
+                )
+            }
+        }
+
+    )
+}
+
+
+@Composable
+fun FABContent(onTap: () -> Unit) {
+    FloatingActionButton(
+        onClick = { onTap() }, shape = RoundedCornerShape(50.dp),
+        containerColor = Color(0xFF92CBDF)
+    ) {
+        Icon(
+            imageVector = Icons.Default.Add,
+            contentDescription = "Add a book",
+            tint = Color.White
+        )
+
+    }
+}
+
+@Preview
+@Composable
+fun ListCard(book: MBook = MBook(""), onPressDetails: (String) -> Unit = {}) {
+    val context = LocalContext.current
+    val resources = context.resources
+    val displayMetrics = resources.displayMetrics
+    val screenWidth = displayMetrics.widthPixels / displayMetrics.density
+    val spacing = 10.dp
+    Card(
+        shape = RoundedCornerShape(39.dp),
+        elevation = CardDefaults.cardElevation(
+            defaultElevation = 6.dp,
+            pressedElevation = 10.dp,
+            disabledElevation = 0.dp
+        ),
+        modifier = Modifier
+            .padding(16.dp)
+            .height(242.dp)
+            .width(202.dp)
+            .clickable {
+                onPressDetails.invoke("")
+            },
+        colors = CardDefaults.cardColors(containerColor = Color.White)
+    ) {
+        Column(
+            modifier = Modifier.width(screenWidth.dp - spacing * 2),
+            horizontalAlignment = Alignment.Start
+        ) {
+            Row(horizontalArrangement = Arrangement.Center) {
+                Image(
+                    painter = rememberImagePainter(data = "https://venturebeat.com/wp-content/uploads/2016/05/bf-1.jpg?w=1200&strip=all"),
+                    contentDescription = "book image",
+                    modifier = Modifier
+                        .height(140.dp)
+                        .width(100.dp)
+                        .padding(4.dp)
+                )
+                Spacer(modifier = Modifier.width(50.dp))
+                Column(
+                    modifier = Modifier.padding(top = 25.dp),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Icon(
+                        imageVector = Icons.Rounded.FavoriteBorder,
+                        contentDescription = "fav",
+                        modifier = Modifier.padding(bottom = 1.dp)
+                    )
+                    BookRating()
+                }
+            }
+            Text(
+                text = book.title ?: "Book Title",
+                modifier = Modifier.padding(4.dp),
+                fontWeight = FontWeight.Bold,
+                fontSize = 18.sp,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis
+            )
+
+            Text(text = if(book.authors != null) book.authors.toString() else "Authors: All...", modifier = Modifier.padding(4.dp), fontSize = 16.sp)
+            Row(modifier = Modifier.align(Alignment.End)) {
+                RoundedButton(label = "Reading", radius = 70)
+            }
+        }
+    }
+}
+
+@Composable
+fun BookRating(score: Double = 4.5) {
+    Surface(
+        modifier = Modifier
+            .height(70.dp)
+            .padding(4.dp), shape = RoundedCornerShape(56.dp),
+        shadowElevation = 6.dp, color = Color.White
+    ) {
+        Column(modifier = Modifier.padding(4.dp), verticalArrangement = Arrangement.Center) {
+            Icon(imageVector = Icons.Filled.Star, contentDescription = "Star")
+            Text(text = score.toString(), style = MaterialTheme.typography.bodyMedium)
+        }
+
+    }
+}
+
+@Preview
+@Composable
+fun RoundedButton(label: String = "Reading", radius: Int = 29, onPress: () -> Unit = {}) {
+    Surface(
+        modifier = Modifier.clip(
+            RoundedCornerShape(
+                bottomEndPercent = radius,
+                topStartPercent = radius
+            )
+        ), color = Color(0xFF92CBDF)
+    ) {
+        Column(
+            modifier = Modifier
+                .width(90.dp)
+                .heightIn(40.dp)
+                .clickable { onPress() },
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = label,
+                style = TextStyle(
+                    color = Color.White,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 15.sp
+                )
+            )
+        }
+    }
 }
