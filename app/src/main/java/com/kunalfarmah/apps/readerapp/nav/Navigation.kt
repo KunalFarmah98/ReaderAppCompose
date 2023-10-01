@@ -5,12 +5,11 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.kunalfarmah.apps.readerapp.screens.auth.ui.LoginScreen
-import com.kunalfarmah.apps.readerapp.screens.auth.viewmodel.AuthViewModel
 import com.kunalfarmah.apps.readerapp.screens.home.HomeScreen
 import com.kunalfarmah.apps.readerapp.screens.splash.SplashScreen
-import androidx.activity.viewModels
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
+import com.kunalfarmah.apps.readerapp.screens.search.SearchScreen
 import com.kunalfarmah.apps.readerapp.screens.stats.StatsScreen
 
 @Composable
@@ -29,6 +28,9 @@ fun Navigation() {
         }
         composable(ScreenNames.StatsScreen.name){
             StatsScreen(navController)
+        }
+        composable(ScreenNames.SearchScreen.name){
+            SearchScreen(navController)
         }
     }
 }

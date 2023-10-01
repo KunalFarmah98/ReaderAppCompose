@@ -49,7 +49,9 @@ fun HomeScreen(navController: NavController) {
     Scaffold(
         topBar = { AppBar(title = " Reader Boi", navController = navController) },
         floatingActionButton = {
-            FABContent {}
+            FABContent {
+                navController.navigate(ScreenNames.SearchScreen.name)
+            }
         })
     {
         Surface(

@@ -51,6 +51,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.SpanStyle
@@ -303,16 +304,19 @@ fun TitleSection(modifier: Modifier = Modifier, label: String) {
 @Composable
 fun AppBar(
     title: String = "A Reader",
+    backIcon: ImageVector?= null,
     showProfile: Boolean = true,
     navController: NavController = NavController(
         App.context
-    )
+    ),
+    handleBackPress: ()->Unit = {}
 ) {
     TopAppBar(
         title = {
             Text(
                 text = title, color = Color.Red.copy(0.7f),
-                style = TextStyle(fontWeight = FontWeight.Bold, fontSize = 20.sp)
+                style = TextStyle(fontWeight = FontWeight.Bold, fontSize = 20.sp),
+                modifier = Modifier.padding(start = 10.dp)
             )
         },
         navigationIcon = {
@@ -325,17 +329,23 @@ fun AppBar(
                         .size(25.dp)
                 )
             }
+            else if(backIcon != null){
+                Icon(imageVector = backIcon, contentDescription = "arroback",
+                    modifier = Modifier.clickable { handleBackPress.invoke() })
+            }
         },
         actions = {
-            IconButton(onClick = {
-                Firebase.auth.signOut()
-                navController.navigate(ScreenNames.LoginScreen.name)
-            }) {
-                Icon(
-                    imageVector = Icons.Default.ExitToApp,
-                    contentDescription = "Logout",
-                    modifier = Modifier.size(25.dp)
-                )
+            if (showProfile) {
+                IconButton(onClick = {
+                    Firebase.auth.signOut()
+                    navController.navigate(ScreenNames.LoginScreen.name)
+                }) {
+                    Icon(
+                        imageVector = Icons.Default.ExitToApp,
+                        contentDescription = "Logout",
+                        modifier = Modifier.size(25.dp)
+                    )
+                }
             }
         }
 
