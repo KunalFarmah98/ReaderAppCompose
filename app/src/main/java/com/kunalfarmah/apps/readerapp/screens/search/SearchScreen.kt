@@ -27,7 +27,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
@@ -43,10 +42,9 @@ import androidx.navigation.NavController
 import coil.compose.rememberImagePainter
 import com.kunalfarmah.apps.readerapp.components.AppBar
 import com.kunalfarmah.apps.readerapp.components.InputField
+import com.kunalfarmah.apps.readerapp.data.DataOrException
 import com.kunalfarmah.apps.readerapp.model.BookResponse
-import com.kunalfarmah.apps.readerapp.model.MBook
 import com.kunalfarmah.apps.readerapp.viewmodel.BooksViewModel
-import dagger.hilt.android.lifecycle.HiltViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -81,13 +79,13 @@ fun SearchScreen(navController: NavController, viewModel: BooksViewModel = hiltV
 
 @Composable
 fun BookList(navController: NavController, viewModel: BooksViewModel){
-    val booksState = viewModel.listOfBooks.collectAsState()
-    if(booksState.value.loading == true){
+    val booksState = viewModel.listOfBooks.collectAsState(initial = DataOrException(null,true,null)).value
+    if(booksState.loading == true){
         CircularProgressIndicator()
     }
     else {
         LazyColumn(modifier = Modifier.fillMaxSize(), contentPadding = PaddingValues(16.dp)) {
-            items(items = booksState.value.data ?: listOf()) { book ->
+            items(items = booksState.data ?: listOf()) { book ->
                 BookRow(book, navController)
             }
         }

@@ -29,7 +29,8 @@ class BooksViewModel @Inject constructor(private val booksRepo: BookRepo) : View
             if(query.isEmpty())
                     return@launch
             listOfBooks.value.loading = true
-            listOfBooks.value = booksRepo.getBooks(query)
+            val resp = booksRepo.getBooks(query)
+            listOfBooks.value = DataOrException(resp.data, resp.loading, resp.e)
             Log.d("BooksVM", "searchBooks: $query ->\n ${listOfBooks.value.data.toString()}")
             if(listOfBooks.value?.data.toString().isNotEmpty())
                 listOfBooks.value.loading = false
@@ -41,7 +42,8 @@ class BooksViewModel @Inject constructor(private val booksRepo: BookRepo) : View
             if(bookId.isEmpty())
                 return@launch
             bookInfo.value.loading = true
-            bookInfo.value = booksRepo.getBookInfo(bookId)
+            val resp = booksRepo.getBookInfo(bookId)
+            bookInfo.value = DataOrException(resp.data, resp.loading, resp.e)
             Log.d("BooksVM", "searchBook: ${listOfBooks.value.data.toString()}")
             if(bookInfo.value?.data.toString().isNotEmpty()) {
                 bookInfo.value.loading = false
