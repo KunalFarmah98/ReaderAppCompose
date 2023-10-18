@@ -19,12 +19,15 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
@@ -35,15 +38,19 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coil.compose.rememberImagePainter
 import com.kunalfarmah.apps.readerapp.components.AppBar
 import com.kunalfarmah.apps.readerapp.components.InputField
+import com.kunalfarmah.apps.readerapp.model.BookResponse
 import com.kunalfarmah.apps.readerapp.model.MBook
+import com.kunalfarmah.apps.readerapp.viewmodel.BooksViewModel
+import dagger.hilt.android.lifecycle.HiltViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SearchScreen(navController: NavController){
+fun SearchScreen(navController: NavController, viewModel: BooksViewModel = hiltViewModel()){
 
     Scaffold(topBar = {
        AppBar(
@@ -59,9 +66,12 @@ fun SearchScreen(navController: NavController){
             Column {
                 SearchForm(modifier = Modifier
                     .fillMaxWidth()
-                    .padding(16.dp))
+                    .padding(16.dp),
+                    viewModel = viewModel){
+                    query -> viewModel.searchBooks(query)
+                }
                 Spacer(modifier = Modifier.height(20.dp))
-                BookList(navController)
+                BookList(navController, viewModel)
             }
         }
 
@@ -70,22 +80,22 @@ fun SearchScreen(navController: NavController){
 }
 
 @Composable
-fun BookList(navController: NavController){
-    val books = listOf(
-        MBook(id="og1", title = "jeje", authors = "jhasa"),
-        MBook(id="og2", title = "jeje2", authors = "jhasa"),
-        MBook(id="og3", title = "ulfaf", authors = "ulfa"),
-        MBook(id="og4", title = "fasdfas", authors = "jadadadsa")
-    )
-    LazyColumn(modifier = Modifier.fillMaxSize(), contentPadding = PaddingValues(16.dp)){
-        items(items = books){ book ->
-            BookRow(book, navController)
+fun BookList(navController: NavController, viewModel: BooksViewModel){
+    val booksState = viewModel.listOfBooks.collectAsState()
+    if(booksState.value.loading == true){
+        CircularProgressIndicator()
+    }
+    else {
+        LazyColumn(modifier = Modifier.fillMaxSize(), contentPadding = PaddingValues(16.dp)) {
+            items(items = booksState.value.data ?: listOf()) { book ->
+                BookRow(book, navController)
+            }
         }
     }
 }
 
 @Composable
-fun BookRow(book: MBook, navController: NavController){
+fun BookRow(book: BookResponse.Item, navController: NavController){
     Card(modifier = Modifier
         .clickable { }
         .fillMaxWidth()
@@ -104,8 +114,8 @@ fun BookRow(book: MBook, navController: NavController){
                     .fillMaxHeight(1f)
                     .padding(end = 10.dp))
             Column() {
-                Text(text = book.title.toString(), overflow = TextOverflow.Ellipsis)
-                Text(text = "Author: ${book.authors}", overflow = TextOverflow.Clip)
+                Text(text = book.volumeInfo?.title.toString(), overflow = TextOverflow.Ellipsis)
+                Text(text = "Author: ${book.volumeInfo?.authors}", overflow = TextOverflow.Clip)
             }
         }
     }
@@ -117,6 +127,7 @@ fun SearchForm(
     modifier: Modifier = Modifier,
     loading: Boolean = false,
     hint: String = "search for books",
+    viewModel: BooksViewModel,
     onSearch: (String)->Unit = {}
 ){
     Column() {

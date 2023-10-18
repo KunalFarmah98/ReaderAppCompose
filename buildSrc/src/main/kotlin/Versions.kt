@@ -6,4 +6,5 @@ object Versions {
     const val compose_bom_version = "2023.03.00"
     const val coroutine_version = "1.7.3"
     const val lifecycle_version = "2.6.1"
+    const val retrofit_version = "2.9.0"
 }

@@ -266,7 +266,7 @@ fun InputField(
             .fillMaxWidth()
             .padding(start = 10.dp, end = 10.dp, bottom = 10.dp),
         keyboardOptions = KeyboardOptions(keyboardType = keyboardType, imeAction = imeAction),
-        keyboardActions = KeyboardActions.Default,
+        keyboardActions = onAction ?: KeyboardActions.Default,
         visualTransformation = visualTransformation,
         trailingIcon = trailingIcon
     )
