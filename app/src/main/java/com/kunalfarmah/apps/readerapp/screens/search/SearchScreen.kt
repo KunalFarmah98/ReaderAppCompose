@@ -36,6 +36,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -45,6 +46,7 @@ import com.kunalfarmah.apps.readerapp.components.AppBar
 import com.kunalfarmah.apps.readerapp.components.InputField
 import com.kunalfarmah.apps.readerapp.data.DataOrException
 import com.kunalfarmah.apps.readerapp.model.BookResponse
+import com.kunalfarmah.apps.readerapp.nav.ScreenNames
 import com.kunalfarmah.apps.readerapp.viewmodel.BooksViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -98,15 +100,17 @@ fun BookList(navController: NavController, viewModel: BooksViewModel){
 @Composable
 fun BookRow(book: BookResponse.Item, navController: NavController){
     Card(modifier = Modifier
-        .clickable { }
+        .clickable {
+            navController.navigate(ScreenNames.BookDetailsScreen.name+"/${book.id}")
+        }
         .fillMaxWidth()
-        .height(100.dp)
-        .padding(3.dp),
+        .height(145.dp)
+        .padding(1.dp),
         shape = RectangleShape,
         colors = CardDefaults.cardColors(containerColor = Color.White),
         elevation = CardDefaults.cardElevation(defaultElevation = 6.dp, pressedElevation = 10.dp)) {
         Row(modifier = Modifier.padding(5.dp),
-            verticalAlignment = Alignment.Top){
+            verticalAlignment = Alignment.CenterVertically){
             Image(painter = rememberImagePainter(data=book.volumeInfo?.imageLinks?.thumbnail),
                 contentDescription = "book image",
                 Modifier
@@ -115,7 +119,12 @@ fun BookRow(book: BookResponse.Item, navController: NavController){
                     .padding(end = 10.dp))
             Column() {
                 Text(text = book.volumeInfo?.title.toString(), overflow = TextOverflow.Ellipsis)
-                Text(text = "Author: ${book.volumeInfo?.authors}", overflow = TextOverflow.Clip)
+                Text(text = "Authors: ${book.volumeInfo?.authors}", overflow = TextOverflow.Clip, fontStyle = FontStyle.Italic)
+                Text(text = "Published on: ${book.volumeInfo?.publishedDate}", overflow = TextOverflow.Clip, fontStyle = FontStyle.Italic)
+                if(book.volumeInfo?.publisher!=null)
+                    Text(text = "Publisher: ${book.volumeInfo?.publisher}", overflow = TextOverflow.Clip, fontStyle = FontStyle.Italic)
+                if(book.volumeInfo?.categories!=null)
+                    Text(text = "${book.volumeInfo?.categories}", overflow = TextOverflow.Clip, fontStyle = FontStyle.Italic)
             }
         }
     }

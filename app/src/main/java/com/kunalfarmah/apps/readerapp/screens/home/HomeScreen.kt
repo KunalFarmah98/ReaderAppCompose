@@ -122,7 +122,7 @@ fun BookListArea(listOfBooks: List<MBook>, navController: NavController){
 }
 
 @Composable
-fun HorizontalScrollableComponent(listOfBooks: List<MBook>, onCardPressed: (String)->Unit) {
+fun HorizontalScrollableComponent(listOfBooks: List<MBook>, onCardPressed: (String?)->Unit) {
     val scrollState = rememberScrollState()
     Row(modifier = Modifier
         .fillMaxWidth()
