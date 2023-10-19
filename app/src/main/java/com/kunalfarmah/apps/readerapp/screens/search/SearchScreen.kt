@@ -2,6 +2,7 @@ package com.kunalfarmah.apps.readerapp.screens.search
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -81,7 +82,9 @@ fun SearchScreen(navController: NavController, viewModel: BooksViewModel = hiltV
 fun BookList(navController: NavController, viewModel: BooksViewModel){
     val booksState = viewModel.listOfBooks.collectAsState(initial = DataOrException(null,true,null)).value
     if(booksState.loading == true){
-        CircularProgressIndicator()
+        Column(modifier = Modifier.fillMaxWidth().fillMaxHeight(), verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
+            CircularProgressIndicator()
+        }
     }
     else {
         LazyColumn(modifier = Modifier.fillMaxSize(), contentPadding = PaddingValues(16.dp)) {
@@ -104,8 +107,7 @@ fun BookRow(book: BookResponse.Item, navController: NavController){
         elevation = CardDefaults.cardElevation(defaultElevation = 6.dp, pressedElevation = 10.dp)) {
         Row(modifier = Modifier.padding(5.dp),
             verticalAlignment = Alignment.Top){
-            val imageUrl = "https://venturebeat.com/wp-content/uploads/2016/05/bf-1.jpg?w=1200&strip=all"
-            Image(painter = rememberImagePainter(data=imageUrl),
+            Image(painter = rememberImagePainter(data=book.volumeInfo?.imageLinks?.thumbnail),
                 contentDescription = "book image",
                 Modifier
                     .width(80.dp)
