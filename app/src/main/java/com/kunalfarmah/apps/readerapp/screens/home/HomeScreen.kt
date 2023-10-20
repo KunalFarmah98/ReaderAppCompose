@@ -25,27 +25,31 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.kunalfarmah.apps.readerapp.components.AppBar
+import com.kunalfarmah.apps.readerapp.components.CircularLoader
 import com.kunalfarmah.apps.readerapp.components.FABContent
 import com.kunalfarmah.apps.readerapp.components.ListCard
 import com.kunalfarmah.apps.readerapp.components.TitleSection
 import com.kunalfarmah.apps.readerapp.model.MBook
 import com.kunalfarmah.apps.readerapp.nav.ScreenNames
+import com.kunalfarmah.apps.readerapp.viewmodel.BooksViewModel
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(navController: NavController) {
-
+    val viewModel: BooksViewModel = hiltViewModel()
     Scaffold(
         topBar = { AppBar(title = " Reader Boi", navController = navController) },
         floatingActionButton = {
@@ -58,20 +62,15 @@ fun HomeScreen(navController: NavController) {
             modifier = Modifier
                 .fillMaxSize(),
         ) {
-            HomeContent(navController = navController)
+            HomeContent(navController = navController, viewModel)
         }
     }
 }
 
 
 @Composable
-fun HomeContent(navController: NavController){
-    val books = listOf(
-        MBook(id="og1", title = "jeje", authors = "jhasa"),
-        MBook(id="og2", title = "jeje2", authors = "jhasa"),
-        MBook(id="og3", title = "ulfaf", authors = "ulfa"),
-        MBook(id="og4", title = "fasdfas", authors = "jadadadsa")
-        )
+fun HomeContent(navController: NavController, viewModel: BooksViewModel){
+    val booksState = viewModel.allBooks.collectAsState().value
     val user = Firebase.auth.currentUser
     val currentUserName = if(user?.email?.isNullOrEmpty() == false)
         user!!.email!!.split('@')[0]
@@ -103,12 +102,25 @@ fun HomeContent(navController: NavController){
                 Divider()
             }
         }
-        ReadingRightNowArea(books = listOf(), navController = navController)
+        if(booksState.loading == true){
+            CircularLoader()
+        }
+        else {
+            ReadingRightNowArea(books = booksState.data?.filter {
+                it.userId == user?.uid
+            } ?: listOf(), navController = navController)
+        }
 
         Spacer(modifier = Modifier.height(20.dp))        
         TitleSection(label = "Reading List")
-
-        BookListArea(listOfBooks= books, navController = navController)
+        if(booksState.loading == true){
+            CircularLoader()
+        }
+        else {
+            BookListArea(listOfBooks = booksState.data?.filter {
+                it.userId == user?.uid
+            } ?: listOf(), navController = navController)
+        }
     }
 }
 
@@ -117,7 +129,7 @@ fun HomeContent(navController: NavController){
 fun BookListArea(listOfBooks: List<MBook>, navController: NavController){
     HorizontalScrollableComponent(listOfBooks){
         Log.d("BOOKS", "BookListArea: $it")
-        //open book details
+        navController.navigate(ScreenNames.BookDetailsScreen.name + "/${it}")
     }
 }
 
@@ -130,7 +142,7 @@ fun HorizontalScrollableComponent(listOfBooks: List<MBook>, onCardPressed: (Stri
         .horizontalScroll(scrollState) ){
         for(book in listOfBooks){
             ListCard(book){
-                onCardPressed(book.id)
+                onCardPressed(book.googleBookId)
             }
         }
     }
@@ -139,5 +151,8 @@ fun HorizontalScrollableComponent(listOfBooks: List<MBook>, onCardPressed: (Stri
 
 @Composable
 fun ReadingRightNowArea(books: List<MBook>, navController: NavController) {
-    ListCard()
+    HorizontalScrollableComponent(books){
+        Log.d("BOOKS", "BookListArea: $it")
+        navController.navigate(ScreenNames.BookDetailsScreen.name+"/$it")
+    }
 }

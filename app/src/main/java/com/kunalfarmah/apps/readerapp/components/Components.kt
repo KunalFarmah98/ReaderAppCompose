@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
@@ -52,6 +53,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.SpanStyle
@@ -394,12 +396,13 @@ fun ListCard(book: MBook = MBook(""), onPressDetails: (String) -> Unit = {}) {
     ) {
         Column(
             modifier = Modifier.width(screenWidth.dp - spacing * 2),
-            horizontalAlignment = Alignment.Start
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Row(horizontalArrangement = Arrangement.Center) {
                 Image(
-                    painter = rememberImagePainter(data = "https://venturebeat.com/wp-content/uploads/2016/05/bf-1.jpg?w=1200&strip=all"),
+                    painter = rememberImagePainter(data = book.photoUrl),
                     contentDescription = "book image",
+                    contentScale = ContentScale.Fit,
                     modifier = Modifier
                         .height(140.dp)
                         .width(100.dp)
@@ -480,5 +483,12 @@ fun RoundedButton(label: String = "Reading", radius: Int = 29, onPress: () -> Un
                 )
             )
         }
+    }
+}
+
+@Composable
+fun CircularLoader(){
+    Column(modifier = Modifier.fillMaxWidth().fillMaxHeight(), verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
+        CircularProgressIndicator()
     }
 }

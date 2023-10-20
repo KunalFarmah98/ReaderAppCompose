@@ -43,6 +43,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coil.compose.rememberImagePainter
 import com.kunalfarmah.apps.readerapp.components.AppBar
+import com.kunalfarmah.apps.readerapp.components.CircularLoader
 import com.kunalfarmah.apps.readerapp.components.InputField
 import com.kunalfarmah.apps.readerapp.data.DataOrException
 import com.kunalfarmah.apps.readerapp.model.BookResponse
@@ -84,9 +85,7 @@ fun SearchScreen(navController: NavController, viewModel: BooksViewModel = hiltV
 fun BookList(navController: NavController, viewModel: BooksViewModel){
     val booksState = viewModel.listOfBooks.collectAsState(initial = DataOrException(null,true,null)).value
     if(booksState.loading == true){
-        Column(modifier = Modifier.fillMaxWidth().fillMaxHeight(), verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
-            CircularProgressIndicator()
-        }
+        CircularLoader()
     }
     else {
         LazyColumn(modifier = Modifier.fillMaxSize(), contentPadding = PaddingValues(16.dp)) {
@@ -101,7 +100,7 @@ fun BookList(navController: NavController, viewModel: BooksViewModel){
 fun BookRow(book: BookResponse.Item, navController: NavController){
     Card(modifier = Modifier
         .clickable {
-            navController.navigate(ScreenNames.BookDetailsScreen.name+"/${book.id}")
+            navController.navigate(ScreenNames.BookDetailsScreen.name + "/${book.id}")
         }
         .fillMaxWidth()
         .height(145.dp)

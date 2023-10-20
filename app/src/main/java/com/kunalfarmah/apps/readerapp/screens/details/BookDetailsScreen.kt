@@ -42,6 +42,7 @@ import coil.compose.rememberImagePainter
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.kunalfarmah.apps.readerapp.components.AppBar
+import com.kunalfarmah.apps.readerapp.components.CircularLoader
 import com.kunalfarmah.apps.readerapp.components.RoundedButton
 import com.kunalfarmah.apps.readerapp.model.BookResponse
 import com.kunalfarmah.apps.readerapp.model.MBook
@@ -70,15 +71,7 @@ fun BookDetailsScreen(navController: NavController, bookId: String) {
         }
     }) {
         if (bookState.loading == true) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .fillMaxHeight(),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                CircularProgressIndicator()
-            }
+            CircularLoader()
         } else if (bookState.data == null) {
             Text(text = "Error loading book. ${bookState.e?.message.toString()}")
         } else {
