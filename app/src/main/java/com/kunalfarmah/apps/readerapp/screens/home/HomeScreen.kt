@@ -129,7 +129,7 @@ fun HomeContent(navController: NavController, viewModel: BooksViewModel){
 fun BookListArea(listOfBooks: List<MBook>, navController: NavController){
     HorizontalScrollableComponent(listOfBooks){
         Log.d("BOOKS", "BookListArea: $it")
-        navController.navigate(ScreenNames.BookDetailsScreen.name + "/${it}")
+        navController.navigate(ScreenNames.UpdateScreen.name + "/${it}")
     }
 }
 
@@ -153,6 +153,6 @@ fun HorizontalScrollableComponent(listOfBooks: List<MBook>, onCardPressed: (Stri
 fun ReadingRightNowArea(books: List<MBook>, navController: NavController) {
     HorizontalScrollableComponent(books){
         Log.d("BOOKS", "BookListArea: $it")
-        navController.navigate(ScreenNames.BookDetailsScreen.name+"/$it")
+        navController.navigate(ScreenNames.UpdateScreen.name+"/$it")
     }
 }

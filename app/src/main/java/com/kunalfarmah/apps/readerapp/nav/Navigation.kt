@@ -14,6 +14,7 @@ import com.google.firebase.ktx.Firebase
 import com.kunalfarmah.apps.readerapp.screens.details.BookDetailsScreen
 import com.kunalfarmah.apps.readerapp.screens.search.SearchScreen
 import com.kunalfarmah.apps.readerapp.screens.stats.StatsScreen
+import com.kunalfarmah.apps.readerapp.screens.update.UpdateBookScreen
 
 @Composable
 fun Navigation() {
@@ -41,6 +42,15 @@ fun Navigation() {
         })){
             it.arguments?.getString("bookId").let{ bookId ->
                 BookDetailsScreen(navController = navController, bookId = bookId.toString())
+            }
+        }
+
+        var updateName = ScreenNames.UpdateScreen.name
+        composable("$updateName/{bookId}", arguments = listOf(navArgument("bookId"){
+            type = NavType.StringType
+        })){
+            it.arguments?.getString("bookId").let{ bookId ->
+                UpdateBookScreen(navController = navController, bookId = bookId.toString())
             }
         }
     }
