@@ -95,6 +95,7 @@ dependencies {
     implementation ("com.squareup.retrofit2:retrofit:${Versions.retrofit_version}")
     implementation ("com.squareup.retrofit2:converter-moshi:${Versions.retrofit_version}")
 
+    implementation ("com.github.a914-gowtham:compose-ratingbar:1.3.4")
 
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
