@@ -1,7 +1,7 @@
 package com.kunalfarmah.apps.readerapp.screens.update
 
 import android.util.Log
-import android.widget.RatingBar
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -15,26 +15,18 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.CornerSize
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Star
-import androidx.compose.material.icons.outlined.Star
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CardElevation
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.produceState
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -49,59 +41,64 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coil.compose.rememberImagePainter
 import com.google.firebase.Timestamp
+import com.google.firebase.firestore.FirebaseFirestore
+import com.gowtham.ratingbar.RatingBar
+import com.gowtham.ratingbar.RatingBarStyle
+import com.kunalfarmah.apps.readerapp.App
 import com.kunalfarmah.apps.readerapp.components.AppBar
 import com.kunalfarmah.apps.readerapp.components.CircularLoader
 import com.kunalfarmah.apps.readerapp.components.InputField
-import com.kunalfarmah.apps.readerapp.model.MBook
-import com.kunalfarmah.apps.readerapp.viewmodel.BooksViewModel
-import androidx.compose.runtime.*
-import androidx.compose.ui.platform.SoftwareKeyboardController
-import com.gowtham.ratingbar.RatingBar
-import com.gowtham.ratingbar.RatingBarStyle
 import com.kunalfarmah.apps.readerapp.components.RoundedButton
+import com.kunalfarmah.apps.readerapp.model.MBook
+import com.kunalfarmah.apps.readerapp.nav.ScreenNames
+import com.kunalfarmah.apps.readerapp.viewmodel.BooksViewModel
 import java.text.SimpleDateFormat
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun UpdateBookScreen(navController: NavController, bookId: String, viewModel: BooksViewModel = hiltViewModel()) {
+fun UpdateBookScreen(
+    navController: NavController,
+    bookId: String,
+    viewModel: BooksViewModel = hiltViewModel()
+) {
     Scaffold(topBar = {
         AppBar(
             title = "Update Books",
             backIcon = Icons.Default.ArrowBack,
             navController = navController,
             showProfile = false
-        ){
+        ) {
             navController.popBackStack()
         }
     }) {
         val bookInfo = viewModel.allBooks.collectAsState().value
-        Surface (modifier = Modifier
-            .padding(it)
-            .fillMaxSize()){
-            Column(modifier = Modifier.padding(3.dp),
+        Surface(
+            modifier = Modifier
+                .padding(it)
+                .fillMaxSize()
+        ) {
+            Column(
+                modifier = Modifier.padding(3.dp),
                 verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally){
-                if(bookInfo.loading == true){
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                if (bookInfo.loading == true) {
                     CircularLoader()
-                }
-                else{
+                } else {
                     UpdateBook(
                         book = bookInfo.data?.filter { it.googleBookId == bookId }?.get(0)!!,
                         navController = navController
                     )
                 }
-                
             }
         }
-
     }
-
 }
 
 @Composable
-fun UpdateBook(book: MBook, navController: NavController){
+fun UpdateBook(book: MBook, navController: NavController) {
     val noteState = remember {
-        mutableStateOf(if(book.notes?.isEmpty() == true) "No Thoughts available" else book.notes.toString())
+        mutableStateOf(if (book.notes?.isEmpty() == true) "No Thoughts available" else book.notes.toString())
     }
     val startedReading = remember {
         mutableStateOf(false)
@@ -111,12 +108,57 @@ fun UpdateBook(book: MBook, navController: NavController){
         mutableStateOf(false)
     }
 
+    val openDialog = remember {
+        mutableStateOf(false)
+    }
+
+    if (openDialog.value) {
+        ShowAlertDialog(
+            title = "Delete",
+            content = "Are you sure that you want to delete ${book.title} from your collection?",
+            openDialog = openDialog
+        ) {
+            FirebaseFirestore.getInstance().collection("books")
+                .document(book.id!!).delete()
+                .addOnCompleteListener {
+                    if (it.isSuccessful) {
+                        Toast.makeText(
+                            App.context,
+                            "Successfully deleted book ${book.title}",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                        // needed to recompose home screen
+                        navController.navigate(ScreenNames.HomeScreen.name){
+                            popUpTo(0)
+                        }
+                    } else {
+                        Toast.makeText(
+                            App.context,
+                            "Error occurred while deleting book ${book.title}",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+
+                }
+                .addOnFailureListener {
+                    Toast.makeText(
+                        App.context,
+                        "Error occurred while deleting book ${book.title}",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+        }
+    }
+
+
     val rating = remember {
         mutableStateOf(book.rating ?: 0.0)
     }
-    Column(modifier = Modifier
-        .fillMaxSize()
-        .padding(5.dp)) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(5.dp)
+    ) {
         Card(
             modifier = Modifier
                 .fillMaxWidth()
@@ -194,9 +236,9 @@ fun UpdateBook(book: MBook, navController: NavController){
             modifier = Modifier
                 .padding(20.dp)
                 .fillMaxWidth(), verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
+            horizontalArrangement = Arrangement.Center
         ) {
-            TextButton(onClick = {
+            TextButton(modifier = Modifier.width(180.dp), onClick = {
                 if (!startedReading.value && book.startedReading == null) {
                     startedReading.value = true
                 }
@@ -214,39 +256,47 @@ fun UpdateBook(book: MBook, navController: NavController){
                         Text(text = "Start Reading", fontSize = 18.sp)
                     }
                 } else {
-                    Text(text = "Started Reading on ${convertTime(book.startedReading!!)}", fontSize = 18.sp,)
+                    Text(
+                        text = "Started on ${convertTime(book.startedReading!!)}",
+                        fontSize = 16.sp,
+                    )
                 }
             }
 
-            TextButton(onClick = {
+            TextButton(modifier = Modifier.width(180.dp), onClick = {
                 if (!isFinishedReading.value && book.finishedReading == null) {
                     isFinishedReading.value = true
                 }
 
             }, enabled = book?.finishedReading == null) {
                 if (book.finishedReading == null) {
-                    if(!isFinishedReading.value){
-                        Text(text = "Mark as Read", fontSize = 18.sp,)
-                    }
-                    else{
-                        Text(text = "Finished Reading!",
+                    if (!isFinishedReading.value) {
+                        Text(text = "Mark as Read", fontSize = 18.sp)
+                    } else {
+                        Text(
+                            text = "Finished Reading!",
                             Modifier.alpha(0.6f),
                             fontSize = 18.sp,
-                            color = Color.Red.copy(0.5f))
+                            color = Color.Red.copy(0.5f)
+                        )
                     }
 
-                }
-                else{
-                    Text(text = "Finished on: ${convertTime(book.finishedReading!!)}", fontSize = 18.sp)
+                } else {
+                    Text(
+                        text = "Finished on ${convertTime(book.finishedReading!!)}",
+                        fontSize = 16.sp
+                    )
                 }
 
             }
         }
 
-        Column(modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 50.dp),
-            horizontalAlignment = Alignment.CenterHorizontally) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 50.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
             Text(text = "Rating", fontSize = 18.sp, modifier = Modifier.padding(bottom = 20.dp))
             RatingBar(
                 value = rating.value.toFloat(),
@@ -268,22 +318,94 @@ fun UpdateBook(book: MBook, navController: NavController){
             horizontalArrangement = Arrangement.SpaceAround
         ) {
 
-            RoundedButton(label = "Update"){
+            val changedNote = book.notes != noteState.value
+            val changedRating = book.rating != rating.value
+            val finishedReadingTs =
+                if (isFinishedReading.value) Timestamp.now() else book.finishedReading
+            val startedReadingTs =
+                if (startedReading.value) Timestamp.now() else book.startedReading
+            val shouldUpdate =
+                changedNote || changedRating || startedReading.value || isFinishedReading.value
+            val updatedBook = hashMapOf(
+                "finished_reading" to finishedReadingTs,
+                "started_reading" to startedReadingTs,
+                "rating" to rating.value,
+                "notes" to noteState.value
+            ).toMap()
 
+            RoundedButton(label = "Update") {
+
+                if (shouldUpdate) {
+                    FirebaseFirestore.getInstance()
+                        .collection("books")
+                        .document(book.id!!)
+                        .update(updatedBook)
+                        .addOnCompleteListener {
+                            Log.d("UpdateBook", "UpdateBook: ${it.result.toString()}")
+                            if (it.isSuccessful) {
+                                Toast.makeText(
+                                    App.context,
+                                    "Successfully updated book ${book.title}",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                                navController.popBackStack()
+                            } else {
+                                Toast.makeText(
+                                    App.context,
+                                    "Error occurred while updating book ${book.title}",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                        }
+                        .addOnFailureListener {
+                            Toast.makeText(
+                                App.context,
+                                "Error occurred while updating book ${book.title}",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                            Log.e("UpdateBook", "UpdateBook: Error updating document", it)
+                        }
+                }
             }
-            RoundedButton(label = "Delete"){
-
+            RoundedButton(label = "Delete") {
+                openDialog.value = true
             }
-
         }
     }
 }
 
+@Composable
+fun ShowAlertDialog(
+    title: String,
+    content: String,
+    openDialog: MutableState<Boolean>,
+    onConfirm: () -> Unit
+) {
 
-fun convertTime(time: Timestamp): String{
-    return SimpleDateFormat("dd/MM/yyyy hh:mm:ss").format(time.toDate())
+
+    if (openDialog.value) {
+        AlertDialog(
+            title = { Text(title) },
+            text = { Text(text = content) },
+            onDismissRequest = { },
+            confirmButton = {
+                TextButton(onClick = {
+                    onConfirm.invoke()
+                }) {
+                    Text("Delete")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = {
+                    openDialog.value = false
+                }) {
+                    Text("Go Back!")
+                }
+            },
+        )
+    }
 }
 
-fun saveNote(){
-
+fun convertTime(time: Timestamp): String {
+    return SimpleDateFormat("dd/MM/yyyy HH:mm").format(time.toDate())
 }
