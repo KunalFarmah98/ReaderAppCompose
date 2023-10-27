@@ -27,6 +27,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.ThumbUp
 import androidx.compose.material.icons.rounded.FavoriteBorder
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -76,12 +77,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import coil.compose.rememberImagePainter
+import com.google.firebase.Timestamp
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.kunalfarmah.apps.readerapp.App
 import com.kunalfarmah.apps.readerapp.model.BookResponse
 import com.kunalfarmah.apps.readerapp.model.MBook
 import com.kunalfarmah.apps.readerapp.nav.ScreenNames
+import java.text.SimpleDateFormat
 
 
 @OptIn(ExperimentalComposeUiApi::class)
@@ -398,7 +401,9 @@ fun ListCard(book: MBook = MBook(""), onPressDetails: (String) -> Unit = {}) {
         colors = CardDefaults.cardColors(containerColor = Color.White)
     ) {
         Column(
-            modifier = Modifier.width(screenWidth.dp - spacing * 2).fillMaxHeight(),
+            modifier = Modifier
+                .width(screenWidth.dp - spacing * 2)
+                .fillMaxHeight(),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.SpaceBetween
         ) {
@@ -492,7 +497,9 @@ fun RoundedButton(label: String = "Reading", radius: Int = 29, onPress: () -> Un
 
 @Composable
 fun CircularLoader(){
-    Column(modifier = Modifier.fillMaxWidth().fillMaxHeight(), verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
+    Column(modifier = Modifier
+        .fillMaxWidth()
+        .fillMaxHeight(), verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
         CircularProgressIndicator()
     }
 }
@@ -551,14 +558,19 @@ fun BookRow(book: MBook, navController: NavController?){
                     .fillMaxHeight(1f)
                     .padding(end = 10.dp))
             Column() {
-                Text(text = book.title.toString(), overflow = TextOverflow.Ellipsis)
-                Text(text = "Authors: ${book.authors}", overflow = TextOverflow.Clip, fontStyle = FontStyle.Italic)
-                Text(text = "Published on: ${book.publishedDate}", overflow = TextOverflow.Clip, fontStyle = FontStyle.Italic)
-                if(book.publisher!=null)
-                    Text(text = "Publisher: ${book.publisher}", overflow = TextOverflow.Clip, fontStyle = FontStyle.Italic)
-                if(book.categories!=null)
-                    Text(text = "${book.categories}", overflow = TextOverflow.Clip, fontStyle = FontStyle.Italic)
+                Text(text = book.title.toString(), overflow = TextOverflow.Ellipsis, softWrap = true)
+                Text(text = "Authors: ${book.authors}", overflow = TextOverflow.Clip, fontStyle = FontStyle.Italic, softWrap = true)
+                Text(text = "Started on: ${convertTime(book.startedReading!!)}", overflow = TextOverflow.Clip, fontStyle = FontStyle.Italic, softWrap = true)
+                Text(text = "Finished on: ${convertTime(book.finishedReading!!)}", overflow = TextOverflow.Clip, fontStyle = FontStyle.Italic, softWrap = true)
+            }
+            if(book.rating != null && book.rating!! >= 4.0){
+                Spacer(modifier = Modifier.width(10.dp))
+                Icon(imageVector = Icons.Filled.ThumbUp, contentDescription = "like", tint = Color.Green)
             }
         }
     }
+}
+
+fun convertTime(time: Timestamp): String {
+    return SimpleDateFormat("dd/MM/yyyy HH:mm").format(time.toDate())
 }
