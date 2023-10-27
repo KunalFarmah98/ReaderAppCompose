@@ -46,6 +46,7 @@ import com.kunalfarmah.apps.readerapp.components.CircularLoader
 import com.kunalfarmah.apps.readerapp.components.RoundedButton
 import com.kunalfarmah.apps.readerapp.model.BookResponse
 import com.kunalfarmah.apps.readerapp.model.MBook
+import com.kunalfarmah.apps.readerapp.nav.ScreenNames
 import com.kunalfarmah.apps.readerapp.viewmodel.BooksViewModel
 import kotlinx.coroutines.Dispatchers
 
@@ -194,7 +195,9 @@ fun BookDetailsScreen(navController: NavController, bookId: String) {
                             collection.document(docID).update(hashMapOf("id" to docID) as Map<String,Any>)
                         }.addOnCompleteListener{
                             if(it.isSuccessful){
-                                navController.popBackStack()
+                                navController.navigate(ScreenNames.HomeScreen.name){
+                                    popUpTo(0)
+                                }
                             }
                         }.addOnFailureListener{
                             Log.e("BookDetailsScreen", "BookDetails: Error Updating book", it )
