@@ -1,6 +1,7 @@
 package com.kunalfarmah.apps.readerapp.components
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -387,7 +388,7 @@ fun ListCard(book: MBook = MBook(""), onPressDetails: (String) -> Unit = {}) {
         ),
         modifier = Modifier
             .padding(16.dp)
-            .height(242.dp)
+            .height(265.dp)
             .width(202.dp)
             .clickable {
                 onPressDetails.invoke("")
@@ -395,8 +396,9 @@ fun ListCard(book: MBook = MBook(""), onPressDetails: (String) -> Unit = {}) {
         colors = CardDefaults.cardColors(containerColor = Color.White)
     ) {
         Column(
-            modifier = Modifier.width(screenWidth.dp - spacing * 2),
-            horizontalAlignment = Alignment.CenterHorizontally
+            modifier = Modifier.width(screenWidth.dp - spacing * 2).fillMaxHeight(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.SpaceBetween
         ) {
             Row(horizontalArrangement = Arrangement.Center) {
                 Image(
@@ -419,7 +421,7 @@ fun ListCard(book: MBook = MBook(""), onPressDetails: (String) -> Unit = {}) {
                         contentDescription = "fav",
                         modifier = Modifier.padding(bottom = 1.dp)
                     )
-                    BookRating()
+                    BookRating(book.rating ?: 0.0)
                 }
             }
             Text(
@@ -432,8 +434,8 @@ fun ListCard(book: MBook = MBook(""), onPressDetails: (String) -> Unit = {}) {
             )
 
             Text(text = if(book.authors != null) book.authors.toString() else "Authors: All...", modifier = Modifier.padding(4.dp), fontSize = 16.sp)
-            Row(modifier = Modifier.align(Alignment.End)) {
-                RoundedButton(label = "Reading", radius = 70)
+            Row(modifier = Modifier.align(Alignment.End), verticalAlignment = Alignment.Bottom) {
+                RoundedButton(label = if(book.startedReading!=null) "Reading" else "Not Started", radius = 70)
             }
         }
     }
@@ -468,7 +470,7 @@ fun RoundedButton(label: String = "Reading", radius: Int = 29, onPress: () -> Un
     ) {
         Column(
             modifier = Modifier
-                .width(90.dp)
+                .width(100.dp)
                 .heightIn(40.dp)
                 .clickable { onPress() },
             verticalArrangement = Arrangement.Center,
