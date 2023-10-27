@@ -336,35 +336,41 @@ fun UpdateBook(book: MBook, navController: NavController) {
             RoundedButton(label = "Update") {
 
                 if (shouldUpdate) {
-                    FirebaseFirestore.getInstance()
-                        .collection("books")
-                        .document(book.id!!)
-                        .update(updatedBook)
-                        .addOnCompleteListener {
-                            Log.d("UpdateBook", "UpdateBook: ${it.result.toString()}")
-                            if (it.isSuccessful) {
-                                Toast.makeText(
-                                    App.context,
-                                    "Successfully updated book ${book.title}",
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                                navController.popBackStack()
-                            } else {
+                    book.id.let {
+                        if (it == null)
+                            return@RoundedButton
+                        FirebaseFirestore.getInstance()
+                            .collection("books")
+                            .document(it)
+                            .update(updatedBook)
+                            .addOnCompleteListener {task->
+                                Log.d("UpdateBook", "UpdateBook: ${task.result.toString()}")
+                                if (task.isSuccessful) {
+                                    Toast.makeText(
+                                        App.context,
+                                        "Successfully updated book ${book.title}",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                    navController.navigate(ScreenNames.HomeScreen.name) {
+                                        popUpTo(0)
+                                    }
+                                } else {
+                                    Toast.makeText(
+                                        App.context,
+                                        "Error occurred while updating book ${book.title}",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                }
+                            }
+                            .addOnFailureListener {e->
                                 Toast.makeText(
                                     App.context,
                                     "Error occurred while updating book ${book.title}",
                                     Toast.LENGTH_SHORT
                                 ).show()
+                                Log.e("UpdateBook", "UpdateBook: Error updating document", e)
                             }
-                        }
-                        .addOnFailureListener {
-                            Toast.makeText(
-                                App.context,
-                                "Error occurred while updating book ${book.title}",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                            Log.e("UpdateBook", "UpdateBook: Error updating document", it)
-                        }
+                    }
                 }
             }
             RoundedButton(label = "Delete") {
