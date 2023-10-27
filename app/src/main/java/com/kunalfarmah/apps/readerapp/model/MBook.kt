@@ -13,7 +13,7 @@ data class MBook(
     @get:PropertyName("book_photo_url")
     @set:PropertyName("book_photo_url")
     var photoUrl: String?=null,
-    var caregories: String?=null,
+    var categories: String?=null,
     @get:PropertyName("published_date")
     @set:PropertyName("published_date")
     var publishedDate: String?=null,

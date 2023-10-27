@@ -136,13 +136,20 @@ fun BookListArea(listOfBooks: List<MBook>, navController: NavController){
 @Composable
 fun HorizontalScrollableComponent(listOfBooks: List<MBook>, onCardPressed: (String?)->Unit) {
     val scrollState = rememberScrollState()
-    Row(modifier = Modifier
-        .fillMaxWidth()
-        .heightIn(280.dp)
-        .horizontalScroll(scrollState) ){
-        for(book in listOfBooks){
-            ListCard(book){
-                onCardPressed(book.googleBookId)
+    if(listOfBooks.isNullOrEmpty()){
+        Text(modifier = Modifier.padding(10.dp), text = "No books present", fontSize = 18.sp, color = Color.Red)
+    }
+    else {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .heightIn(280.dp)
+                .horizontalScroll(scrollState)
+        ) {
+            for (book in listOfBooks) {
+                ListCard(book) {
+                    onCardPressed(book.googleBookId)
+                }
             }
         }
     }

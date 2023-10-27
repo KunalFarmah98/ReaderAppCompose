@@ -43,6 +43,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coil.compose.rememberImagePainter
 import com.kunalfarmah.apps.readerapp.components.AppBar
+import com.kunalfarmah.apps.readerapp.components.BookRow
 import com.kunalfarmah.apps.readerapp.components.CircularLoader
 import com.kunalfarmah.apps.readerapp.components.InputField
 import com.kunalfarmah.apps.readerapp.data.DataOrException
@@ -91,39 +92,6 @@ fun BookList(navController: NavController, viewModel: BooksViewModel){
         LazyColumn(modifier = Modifier.fillMaxSize(), contentPadding = PaddingValues(16.dp)) {
             items(items = booksState.data ?: listOf()) { book ->
                 BookRow(book, navController)
-            }
-        }
-    }
-}
-
-@Composable
-fun BookRow(book: BookResponse.Item, navController: NavController){
-    Card(modifier = Modifier
-        .clickable {
-            navController.navigate(ScreenNames.BookDetailsScreen.name + "/${book.id}")
-        }
-        .fillMaxWidth()
-        .height(145.dp)
-        .padding(1.dp),
-        shape = RectangleShape,
-        colors = CardDefaults.cardColors(containerColor = Color.White),
-        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp, pressedElevation = 10.dp)) {
-        Row(modifier = Modifier.padding(5.dp),
-            verticalAlignment = Alignment.CenterVertically){
-            Image(painter = rememberImagePainter(data=book.volumeInfo?.imageLinks?.thumbnail),
-                contentDescription = "book image",
-                Modifier
-                    .width(80.dp)
-                    .fillMaxHeight(1f)
-                    .padding(end = 10.dp))
-            Column() {
-                Text(text = book.volumeInfo?.title.toString(), overflow = TextOverflow.Ellipsis)
-                Text(text = "Authors: ${book.volumeInfo?.authors}", overflow = TextOverflow.Clip, fontStyle = FontStyle.Italic)
-                Text(text = "Published on: ${book.volumeInfo?.publishedDate}", overflow = TextOverflow.Clip, fontStyle = FontStyle.Italic)
-                if(book.volumeInfo?.publisher!=null)
-                    Text(text = "Publisher: ${book.volumeInfo?.publisher}", overflow = TextOverflow.Clip, fontStyle = FontStyle.Italic)
-                if(book.volumeInfo?.categories!=null)
-                    Text(text = "${book.volumeInfo?.categories}", overflow = TextOverflow.Clip, fontStyle = FontStyle.Italic)
             }
         }
     }

@@ -53,6 +53,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -78,6 +79,7 @@ import coil.compose.rememberImagePainter
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.kunalfarmah.apps.readerapp.App
+import com.kunalfarmah.apps.readerapp.model.BookResponse
 import com.kunalfarmah.apps.readerapp.model.MBook
 import com.kunalfarmah.apps.readerapp.nav.ScreenNames
 
@@ -492,5 +494,71 @@ fun RoundedButton(label: String = "Reading", radius: Int = 29, onPress: () -> Un
 fun CircularLoader(){
     Column(modifier = Modifier.fillMaxWidth().fillMaxHeight(), verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
         CircularProgressIndicator()
+    }
+}
+
+@Composable
+fun BookRow(book: BookResponse.Item, navController: NavController){
+    Card(modifier = Modifier
+        .clickable {
+            navController.navigate(ScreenNames.BookDetailsScreen.name + "/${book.id}")
+        }
+        .fillMaxWidth()
+        .height(145.dp)
+        .padding(1.dp),
+        shape = RectangleShape,
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp, pressedElevation = 10.dp)) {
+        Row(modifier = Modifier.padding(5.dp),
+            verticalAlignment = Alignment.CenterVertically){
+            Image(painter = rememberImagePainter(data=book.volumeInfo?.imageLinks?.thumbnail),
+                contentDescription = "book image",
+                Modifier
+                    .width(80.dp)
+                    .fillMaxHeight(1f)
+                    .padding(end = 10.dp))
+            Column() {
+                Text(text = book.volumeInfo?.title.toString(), overflow = TextOverflow.Ellipsis)
+                Text(text = "Authors: ${book.volumeInfo?.authors}", overflow = TextOverflow.Clip, fontStyle = FontStyle.Italic)
+                Text(text = "Published on: ${book.volumeInfo?.publishedDate}", overflow = TextOverflow.Clip, fontStyle = FontStyle.Italic)
+                if(book.volumeInfo?.publisher!=null)
+                    Text(text = "Publisher: ${book.volumeInfo?.publisher}", overflow = TextOverflow.Clip, fontStyle = FontStyle.Italic)
+                if(book.volumeInfo?.categories!=null)
+                    Text(text = "${book.volumeInfo?.categories}", overflow = TextOverflow.Clip, fontStyle = FontStyle.Italic)
+            }
+        }
+    }
+}
+
+@Composable
+fun BookRow(book: MBook, navController: NavController?){
+    Card(modifier = Modifier
+        .clickable {
+            navController?.navigate(ScreenNames.BookDetailsScreen.name + "/${book.id}")
+        }
+        .fillMaxWidth()
+        .height(145.dp)
+        .padding(1.dp),
+        shape = RectangleShape,
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp, pressedElevation = 10.dp)) {
+        Row(modifier = Modifier.padding(5.dp),
+            verticalAlignment = Alignment.CenterVertically){
+            Image(painter = rememberImagePainter(data=book.photoUrl),
+                contentDescription = "book image",
+                Modifier
+                    .width(80.dp)
+                    .fillMaxHeight(1f)
+                    .padding(end = 10.dp))
+            Column() {
+                Text(text = book.title.toString(), overflow = TextOverflow.Ellipsis)
+                Text(text = "Authors: ${book.authors}", overflow = TextOverflow.Clip, fontStyle = FontStyle.Italic)
+                Text(text = "Published on: ${book.publishedDate}", overflow = TextOverflow.Clip, fontStyle = FontStyle.Italic)
+                if(book.publisher!=null)
+                    Text(text = "Publisher: ${book.publisher}", overflow = TextOverflow.Clip, fontStyle = FontStyle.Italic)
+                if(book.categories!=null)
+                    Text(text = "${book.categories}", overflow = TextOverflow.Clip, fontStyle = FontStyle.Italic)
+            }
+        }
     }
 }

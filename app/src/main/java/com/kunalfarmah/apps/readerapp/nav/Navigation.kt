@@ -35,6 +35,9 @@ fun Navigation() {
         composable(ScreenNames.SearchScreen.name){
             SearchScreen(navController)
         }
+        composable(ScreenNames.StatsScreen.name){
+            StatsScreen(navController = navController)
+        }
         var detailsName = ScreenNames.BookDetailsScreen.name
         composable("$detailsName/{bookId}", arguments = listOf(navArgument("bookId"){
             type = NavType.StringType
