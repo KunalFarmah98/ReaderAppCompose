@@ -19,8 +19,7 @@ import com.kunalfarmah.apps.readerapp.screens.update.UpdateBookScreen
 @Composable
 fun Navigation() {
     val navController = rememberNavController()
-    val user = Firebase.auth.currentUser
-    NavHost(navController = navController, startDestination = if(user==null) ScreenNames.SplashScreen.name else ScreenNames.HomeScreen.name){
+    NavHost(navController = navController, startDestination = ScreenNames.SplashScreen.name){
         composable(ScreenNames.SplashScreen.name){
             SplashScreen(navController)
         }

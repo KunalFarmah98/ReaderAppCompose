@@ -25,6 +25,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.google.firebase.auth.FirebaseAuth
 import com.kunalfarmah.apps.readerapp.App
 import com.kunalfarmah.apps.readerapp.nav.ScreenNames
 import kotlinx.coroutines.delay
@@ -36,6 +37,8 @@ fun SplashScreen(navController: NavController = NavController(App.context)) {
         Animatable(0f)
     }
 
+    val user = FirebaseAuth.getInstance().currentUser
+
     LaunchedEffect(key1 = true){
         scale.animateTo(0.9f, animationSpec = tween(
             800, easing = Easing {
@@ -45,7 +48,16 @@ fun SplashScreen(navController: NavController = NavController(App.context)) {
         ))
         // open next screen after 2 seconds
         delay(2000)
-        navController.navigate(ScreenNames.LoginScreen.name)
+        if(user == null) {
+            navController.navigate(ScreenNames.LoginScreen.name) {
+                popUpTo(0)
+            }
+        }
+        else {
+            navController.navigate(ScreenNames.HomeScreen.name) {
+                popUpTo(0)
+            }
+        }
     }
 
     Surface(
