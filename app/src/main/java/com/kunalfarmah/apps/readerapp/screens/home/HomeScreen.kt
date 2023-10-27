@@ -107,7 +107,7 @@ fun HomeContent(navController: NavController, viewModel: BooksViewModel){
         }
         else {
             ReadingRightNowArea(books = booksState.data?.filter {
-                it.userId == user?.uid
+                it.userId == user?.uid && it.startedReading != null && it.finishedReading == null
             } ?: listOf(), navController = navController)
         }
 
@@ -118,7 +118,7 @@ fun HomeContent(navController: NavController, viewModel: BooksViewModel){
         }
         else {
             BookListArea(listOfBooks = booksState.data?.filter {
-                it.userId == user?.uid
+                it.userId == user?.uid && it.startedReading == null && it.finishedReading == null
             } ?: listOf(), navController = navController)
         }
     }
